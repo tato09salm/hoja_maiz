@@ -1,0 +1,16 @@
+REPORTE DE ENTRENAMIENTO: MobileNetV2
+============================================================
+
+Tiempo de entrenamiento: 1874.07 segundos (31.23 min)
+
+Reporte de clasificación:
+                                                    precision    recall  f1-score   support
+
+Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot       0.95      0.82      0.88       103
+                       Corn_(maize)___Common_rust_       0.95      1.00      0.98       239
+               Corn_(maize)___Northern_Leaf_Blight       0.96      0.85      0.90       197
+                            Corn_(maize)___healthy       0.90      1.00      0.95       233
+
+                                          accuracy                           0.94       772
+                                         macro avg       0.94      0.92      0.93       772
+                                      weighted avg       0.94      0.94      0.94       772

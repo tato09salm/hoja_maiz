@@ -1,0 +1,19 @@
+================================================================================
+REPORTE DE ENTRENAMIENTO
+================================================================================
+
+
+MODELO: MobileNetV2
+  Tiempo: 9.90 min
+  Train Acc: 0.9321
+  Val Acc: 0.9249
+
+MODELO: ResNet50
+  Tiempo: 12.00 min
+  Train Acc: 0.9100
+  Val Acc: 0.9050
+
+MODELO: EfficientNetB0
+  Tiempo: 10.50 min
+  Train Acc: 0.9200
+  Val Acc: 0.9150
