@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body className={inter.className}>
-        <GoogleOAuthProvider clientId="115489995010-5uhqgn77pler5s5uakkd2iu34ee1othr.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               {children}
