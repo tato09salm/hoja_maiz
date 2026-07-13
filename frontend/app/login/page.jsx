@@ -30,8 +30,13 @@ export default function LoginPage() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
   if (user) {
-    router.push('/dashboard');
     return null;
   }
 

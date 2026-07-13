@@ -16,3 +16,7 @@ node_modules/
 
 # Archivos temporales
 *.log
+
+# Archivos database
+*.db
+*.sqlite3
