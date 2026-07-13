@@ -8,17 +8,20 @@ from datetime import datetime
 # Cargar variables de entorno
 load_dotenv()
 
-# Configurar conexión a PostgreSQL
+# Configurar conexión a PostgreSQL o SQLite local
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+if DB_HOST:
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    engine = create_engine(DATABASE_URL)
+else:
+    DATABASE_URL = "sqlite:///./maiz_saludable.db"
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
-# Crear engine y sesión
-engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

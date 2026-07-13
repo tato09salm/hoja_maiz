@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
+import json
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
@@ -52,6 +53,16 @@ class AnalysisBase(BaseModel):
     is_healthy: bool
     recommendations: Optional[Dict[str, Any]] = None
 
+    @field_validator('recommendations', mode='before')
+    @classmethod
+    def parse_recommendations(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except (ValueError, TypeError):
+                return None
+        return v
+
 
 class AnalysisCreate(AnalysisBase):
     pass
@@ -61,12 +72,6 @@ class AnalysisResponse(AnalysisBase):
     id: int
     user_id: int
     created_at: datetime
-    
-    @classmethod
-    def model_validate(cls, obj, **kwargs):
-        if hasattr(obj, 'recommendations_dict'):
-            obj.recommendations = obj.recommendations_dict
-        return super().model_validate(obj, **kwargs)
     
     class Config:
         from_attributes = True
