@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ProtectedLayout from '@/components/ProtectedLayout';
 import api from '@/utils/api';
 import { useRouter } from 'next/navigation';
@@ -27,6 +27,72 @@ export default function AnalyzePage() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+
+  useEffect(() => {
+    const checkPendingImage = () => {
+      if (typeof window !== 'undefined') {
+        const pendingImage = sessionStorage.getItem('pending_analyze_image');
+        if (pendingImage) {
+          sessionStorage.removeItem('pending_analyze_image');
+          const filename = sessionStorage.getItem('pending_analyze_filename') || 'photo.jpg';
+          sessionStorage.removeItem('pending_analyze_filename');
+          
+          try {
+            const byteString = atob(pendingImage.split(',')[1]);
+            const mimeString = pendingImage.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            const newFile = new File([blob], filename, { type: mimeString });
+            
+            setPreview(pendingImage);
+            setFile(newFile);
+            
+            autoSubmit(newFile);
+          } catch (err) {
+            console.error('Error loading pending image from chatbot:', err);
+          }
+        }
+      }
+    };
+
+    checkPendingImage();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pending-analyze-image', checkPendingImage);
+      return () => {
+        window.removeEventListener('pending-analyze-image', checkPendingImage);
+      };
+    }
+  }, []);
+
+  const autoSubmit = async (uploadFile) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+
+      const response = await api.post('/predict', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      setResult(response.data);
+      queryClient.invalidateQueries({ queryKey: ['analyses'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    } catch (error) {
+      console.error('Error completo:', error);
+      let errorMsg = 'Error al procesar la imagen. Por favor, intenta de nuevo.';
+      if (error.response) {
+        errorMsg += ` (Error ${error.response.status}: ${JSON.stringify(error.response.data)})`;
+      }
+      alert(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];

@@ -25,7 +25,8 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "recharts": "^2.10.3",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
