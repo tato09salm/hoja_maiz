@@ -3,6 +3,7 @@
 import ProtectedLayout from '@/components/ProtectedLayout';
 import api from '@/utils/api';
 import { useQuery } from '@tanstack/react-query';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   BarChart, 
   Bar, 
@@ -27,6 +28,17 @@ import Link from 'next/link';
 const COLORS = ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'];
 
 export default function DashboardPage() {
+  const { t } = useLanguage();
+
+  const getDiseaseTranslation = (name) => {
+    if (!name) return '';
+    const key = `disease_${name.toLowerCase().replace(/\s+/g, '_')}`;
+    const translated = t(key);
+    if (translated !== key) return translated;
+    if (name.toLowerCase() === 'sano' || name.toLowerCase() === 'healthy') return t('disease_healthy');
+    return name;
+  };
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard'],
     queryFn: async () => {
@@ -36,15 +48,18 @@ export default function DashboardPage() {
   });
 
   const chartData = stats?.disease_distribution 
-    ? Object.entries(stats.disease_distribution).map(([name, value]) => ({ name, value }))
+    ? Object.entries(stats.disease_distribution).map(([name, value]) => ({ 
+        name: getDiseaseTranslation(name), 
+        value 
+      }))
     : [];
 
   return (
     <ProtectedLayout>
       <div className="p-4 md:p-6">
         <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">Resumen de tus análisis de hojas de maíz</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('dashboard_title')}</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{t('dashboard_subtitle')}</p>
       </div>
 
         {isLoading ? (
@@ -58,7 +73,7 @@ export default function DashboardPage() {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Análisis</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard_total_analyses')}</p>
               <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats?.total_analyses || 0}</p>
             </div>
             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
@@ -70,7 +85,7 @@ export default function DashboardPage() {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Hojas Sanas</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard_healthy_leaves')}</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats?.healthy_count || 0}</p>
             </div>
             <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
@@ -82,7 +97,7 @@ export default function DashboardPage() {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Hojas Enfermas</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard_diseased_leaves')}</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats?.diseased_count || 0}</p>
             </div>
             <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
@@ -94,8 +109,8 @@ export default function DashboardPage() {
         <Link href="/analyze" className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl shadow-sm text-white hover:from-green-700 hover:to-green-800 transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-green-100">Nuevo Análisis</p>
-              <p className="text-lg font-bold">Analizar Hoja</p>
+              <p className="text-xs text-green-100">{t('dashboard_new_analysis')}</p>
+              <p className="text-lg font-bold">{t('analizar_hoja')}</p>
             </div>
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
               <Leaf size={20} />
@@ -107,7 +122,7 @@ export default function DashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-3">Distribución de Enfermedades</h3>
+          <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-3">{t('dashboard_disease_distribution')}</h3>
           <div className="h-56">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -137,14 +152,14 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                No hay datos suficientes
+                {t('dashboard_no_data')}
               </div>
             )}
           </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-3">Análisis por Tipo</h3>
+          <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-3">{t('dashboard_analysis_by_type')}</h3>
           <div className="h-56">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -164,7 +179,7 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
-                No hay datos suficientes
+                {t('dashboard_no_data')}
               </div>
             )}
           </div>
@@ -174,9 +189,9 @@ export default function DashboardPage() {
       {/* Recent Analyses */}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-gray-800 dark:text-white">Análisis Recientes</h3>
+          <h3 className="text-base font-semibold text-gray-800 dark:text-white">{t('dashboard_recent_analyses')}</h3>
           <Link href="/history" className="text-green-600 hover:text-green-700 dark:text-green-400 font-medium text-xs">
-            Ver todos
+            {t('dashboard_view_all')}
           </Link>
         </div>
         <div className="space-y-2">
@@ -190,9 +205,11 @@ export default function DashboardPage() {
                     className="w-10 h-10 rounded-lg object-cover"
                   />
                   <div>
-                    <p className="font-medium text-gray-800 dark:text-white text-sm">{analysis.diagnosis_class}</p>
+                    <p className="font-medium text-gray-800 dark:text-white text-sm">
+                      {getDiseaseTranslation(analysis.diagnosis_class)}
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {(analysis.confidence * 100).toFixed(1)}% de confianza
+                      {t('dashboard_confidence', { percent: (analysis.confidence * 100).toFixed(1) })}
                     </p>
                   </div>
                 </div>
@@ -202,7 +219,7 @@ export default function DashboardPage() {
                       ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
                       : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                   }`}>
-                    {analysis.is_healthy ? 'Sana' : 'Enferma'}
+                    {analysis.is_healthy ? t('dashboard_healthy') : t('dashboard_diseased')}
                   </span>
                   <div className="flex items-center gap-1 text-gray-400 dark:text-gray-500 text-xs">
                     <Clock size={12} />
@@ -212,7 +229,7 @@ export default function DashboardPage() {
               </div>
             ))
           ) : (
-            <p className="text-gray-400 dark:text-gray-500 text-center py-8 text-sm">No hay análisis recientes</p>
+            <p className="text-gray-400 dark:text-gray-500 text-center py-8 text-sm">{t('dashboard_no_recent')}</p>
           )}
         </div>
       </div>
