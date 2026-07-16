@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, status, Request
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, status, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -560,3 +560,58 @@ async def get_dashboard_stats(
         recent_analyses=recent_analyses_responses,
         disease_distribution=disease_distribution
     )
+
+@app.get("/models/compare-stats")
+async def get_model_compare_stats(
+    current_user: User = Depends(get_current_active_user)
+):
+    cache_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "stats_cache.json")
+    if os.path.exists(cache_path):
+        with open(cache_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    else:
+        raise HTTPException(status_code=404, detail="Archivo de caché de estadísticas no encontrado. Por favor, ejecute el generador.")
+
+is_running_stats_compare = False
+
+def run_stats_generator_task():
+    global is_running_stats_compare
+    import subprocess
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        project_dir = os.path.dirname(base_dir)
+        venv_python = os.path.join(project_dir, "venv", "bin", "python")
+        script_path = os.path.join(project_dir, "generar_cache_stats.py")
+        
+        if os.path.exists(venv_python):
+            python_exec = venv_python
+        else:
+            python_exec = "python"
+            
+        print(f"Starting stats generation background process: {python_exec} {script_path}")
+        subprocess.run([python_exec, script_path], check=True)
+        print("Stats generation completed successfully.")
+    except Exception as e:
+        print(f"Error in stats generation background process: {e}")
+    finally:
+        is_running_stats_compare = False
+
+@app.get("/models/compare-stats/status")
+async def get_compare_stats_status(
+    current_user: User = Depends(get_current_active_user)
+):
+    global is_running_stats_compare
+    return {"running": is_running_stats_compare}
+
+@app.post("/models/compare-stats/run")
+async def run_compare_stats(
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_active_user)
+):
+    global is_running_stats_compare
+    if is_running_stats_compare:
+        return {"message": "El proceso ya se está ejecutando.", "running": True}
+        
+    is_running_stats_compare = True
+    background_tasks.add_task(run_stats_generator_task)
+    return {"message": "El proceso de comparación se ha iniciado en segundo plano.", "running": True}

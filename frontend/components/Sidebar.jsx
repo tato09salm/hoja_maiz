@@ -8,7 +8,8 @@ import {
   History, 
   Users, 
   LogOut, 
-  Sprout
+  Sprout,
+  BarChart3
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -33,6 +34,11 @@ export default function Sidebar({ onNavigate }) {
       label: t('historial'), 
       href: '/history', 
       icon: <History size={20} /> 
+    },
+    { 
+      label: t('estadisticas'), 
+      href: '/statistics', 
+      icon: <BarChart3 size={20} /> 
     },
   ];
 
