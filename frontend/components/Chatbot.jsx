@@ -109,7 +109,7 @@ const renderMessageContent = (text, isUser = false) => {
 export default function Chatbot() {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const router = useRouter();
   
   const [isOpen, setIsOpen] = useState(false);
@@ -198,7 +198,7 @@ export default function Chatbot() {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        alert(language === 'en' ? 'Please upload images only.' : 'Por favor, sube solo imágenes.');
+        alert(t('chatbot_scan_error'));
         return;
       }
 
@@ -279,14 +279,10 @@ export default function Chatbot() {
   }
 
   const firstName = user.name ? user.name.split(' ')[0] : (language === 'en' ? 'User' : 'Usuario');
-  const initialGreeting = language === 'en'
-    ? `Welcome, ${firstName}.\nHow can I help you?`
-    : `Bienvenido, ${firstName}.\n¿En qué te puedo ayudar?`;
+  const initialGreeting = t('chatbot_greeting', { name: firstName });
 
   const handleClearChat = () => {
-    const msg = language === 'en'
-      ? 'Do you want to clear the conversation history?'
-      : '¿Deseas vaciar el historial de conversación?';
+    const msg = t('chatbot_clear_confirm');
     if (window.confirm(msg)) {
       setMessages([]);
     }
@@ -306,7 +302,7 @@ export default function Chatbot() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-full shadow-2xl hover:shadow-green-600/30 transition-all duration-300 hover:scale-110 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-        aria-label={language === 'en' ? 'Open chat assistant' : 'Abrir asistente de chat'}
+        aria-label={t('chatbot_open_aria')}
       >
         {isOpen ? (
           <X className="w-6 h-6 transition-transform duration-300 rotate-90" />
@@ -340,13 +336,13 @@ export default function Chatbot() {
             </div>
             <div>
               <h3 className="font-bold text-sm leading-tight flex items-center gap-1.5">
-                {language === 'en' ? 'Healthy Corn Assistant' : 'Asistente Maíz Saludable'}
+                {t('chatbot_header')}
                 <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
               </h3>
               <div className="flex items-center gap-1 mt-0.5">
                 <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
                 <span className="text-[10px] text-emerald-100 font-medium">
-                  {language === 'en' ? 'Online' : 'En línea'}
+                  {t('chatbot_online')}
                 </span>
               </div>
             </div>
@@ -357,7 +353,7 @@ export default function Chatbot() {
               <button
                 onClick={handleClearChat}
                 className="p-1.5 hover:bg-white/10 rounded-lg text-emerald-100 hover:text-white transition-colors"
-                title={language === 'en' ? 'Clear chat' : 'Limpiar chat'}
+                title={t('chatbot_clear_title')}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -365,7 +361,7 @@ export default function Chatbot() {
             <button
               onClick={() => setIsOpen(false)}
               className="p-1.5 hover:bg-white/10 rounded-lg text-emerald-100 hover:text-white transition-colors"
-              title={language === 'en' ? 'Close chat' : 'Cerrar chat'}
+              title={t('chatbot_close_title')}
             >
               <X className="w-4 h-4" />
             </button>
@@ -382,7 +378,7 @@ export default function Chatbot() {
               </div>
               <div className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-2xl rounded-tl-none px-4 py-2.5 text-sm shadow-sm border border-gray-100 dark:border-gray-700">
                 <span className="block text-[10px] font-bold text-green-600 dark:text-green-400 mb-1">
-                  {language === 'en' ? 'ASSISTANT' : 'ASISTENTE'}
+                  {t('chatbot_assistant_label')}
                 </span>
                 <p className="leading-relaxed whitespace-pre-line">{initialGreeting}</p>
               </div>
@@ -411,21 +407,13 @@ export default function Chatbot() {
               const toolName = mainTool.toolName || (mainTool.type.startsWith('tool-') ? mainTool.type.replace('tool-', '') : '');
               
               if (toolName === 'goToDashboard') {
-                displayedText = language === 'en' 
-                  ? 'Sure, taking you to the Dashboard now.' 
-                  : 'Listo, te llevo al Dashboard ahora.';
+                displayedText = t('chatbot_feedback_dashboard');
               } else if (toolName === 'goToAnalyze') {
-                displayedText = language === 'en' 
-                  ? 'Perfect, opening the leaf analysis page.' 
-                  : 'Perfecto, abriendo la página de análisis.';
+                displayedText = t('chatbot_feedback_analyze');
               } else if (toolName === 'goToHistory') {
-                displayedText = language === 'en' 
-                  ? 'Understood, taking you to your history.' 
-                  : 'Entendido, te llevo al historial.';
+                displayedText = t('chatbot_feedback_history');
               } else if (toolName === 'analyzeLeaf') {
-                displayedText = language === 'en' 
-                  ? 'Please upload a photo of your corn leaf below.' 
-                  : 'Por favor, sube una imagen de tu hoja de maíz en el panel de abajo.';
+                displayedText = t('chatbot_feedback_upload');
               }
             }
 
@@ -441,10 +429,10 @@ export default function Chatbot() {
               <div key={m.id} className="space-y-3">
                 {/* 1. Render Tool Call Indicators (if any) */}
                 {toolParts.map((part, partIdx) => {
-                  let label = language === 'en' ? '-- Tool used --' : '-- Herramienta utilizada --';
+                  let label = t('chatbot_tool_used');
                   const isExecuting = part.state === 'input-streaming' || part.state === 'input-available' || part.state === 'call';
                   if (isExecuting) {
-                    label = language === 'en' ? '-- Calling tool --' : '-- Llamando a herramienta --';
+                    label = t('chatbot_tool_calling');
                   }
 
                   return (
@@ -483,7 +471,7 @@ export default function Chatbot() {
                       >
                         {!isUser && (
                           <span className="block text-[10px] font-bold text-green-600 dark:text-green-400 mb-1">
-                            {language === 'en' ? 'ASSISTANT' : 'ASISTENTE'}
+                            {t('chatbot_assistant_label')}
                           </span>
                         )}
                         
@@ -528,7 +516,7 @@ export default function Chatbot() {
               <div className="flex justify-between items-center">
                 <span className="text-xs font-semibold text-green-800 dark:text-green-300 flex items-center gap-1.5">
                   <Leaf className="w-4 h-4 animate-bounce" />
-                  {language === 'en' ? 'Scan Corn Leaf' : 'Analizar Hoja de Maíz'}
+                  {t('chatbot_scan_title')}
                 </span>
                 <button 
                   onClick={() => setShowUploadBox(false)}
@@ -538,17 +526,15 @@ export default function Chatbot() {
                 </button>
               </div>
               <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                {language === 'en' 
-                  ? 'Upload an image of a corn leaf to start automatic diagnosis.' 
-                  : 'Sube una imagen de la hoja de maíz para realizar el diagnóstico automático.'}
+                {t('chatbot_scan_desc')}
               </p>
               <label className="flex flex-col items-center justify-center py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:border-green-400 transition-all group">
                 <Upload className="w-6 h-6 text-green-600 dark:text-green-400 mb-1 group-hover:scale-110 transition-transform" />
                 <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                  {language === 'en' ? 'Select Image' : 'Seleccionar Imagen'}
+                  {t('chatbot_scan_btn')}
                 </span>
                 <span className="text-[10px] text-gray-400">
-                  {language === 'en' ? 'JPEG, PNG (Images only)' : 'JPEG, PNG (Solo imágenes)'}
+                  {t('chatbot_scan_formats')}
                 </span>
                 <input 
                   type="file" 
@@ -563,9 +549,7 @@ export default function Chatbot() {
           {/* Error Message */}
           {(error || localError) && (
             <div className="p-3 text-xs bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-center font-medium">
-              {language === 'en'
-                ? 'An error occurred. Please try again.'
-                : 'Un error ha ocurrido. Por favor, inténtalo de nuevo.'}
+              {t('chatbot_error')}
             </div>
           )}
 
@@ -583,7 +567,7 @@ export default function Chatbot() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={language === 'en' ? 'Ask something about Healthy Corn...' : 'Pregunta algo sobre Maíz Saludable...'}
+              placeholder={t('chatbot_placeholder')}
               disabled={isLoading}
               className="flex-1 min-w-0 h-10 px-3.5 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-transparent disabled:opacity-50 transition-all duration-200"
             />
