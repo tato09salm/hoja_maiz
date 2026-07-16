@@ -13,13 +13,13 @@ const resources = {
       'detector_enfermedades': 'Detector de Enfermedades',
       'cerrar_sesion': 'Cerrar Sesión',
       'loading': 'Cargando...',
-      
+
       // Navbar/Sidebar
       'dashboard': 'Dashboard',
       'analizar_hoja': 'Analizar Hoja',
       'historial': 'Historial',
       'usuarios': 'Usuarios',
-      
+
       // Login
       'bienvenido': 'Bienvenido de nuevo',
       'crea_tu_cuenta': 'Crea tu cuenta',
@@ -38,7 +38,7 @@ const resources = {
       'ya_tienes_cuenta': '¿Ya tienes cuenta? Inicia sesión',
       'error_ocurrido': 'Ocurrió un error',
       'error_login_google': 'Error al iniciar sesión con Google',
-      
+
       // Landing
       'cultiva_futuro': 'Cultiva el futuro de tu maíz',
       'detecta_enfermedades_rapido': 'Detecta enfermedades de forma rápida y precisa con inteligencia artificial. Protege tus cultivos y maximiza tu producción.',
@@ -150,13 +150,13 @@ const resources = {
       'detector_enfermedades': 'Disease Detector',
       'cerrar_sesion': 'Log Out',
       'loading': 'Loading...',
-      
+
       // Navbar/Sidebar
       'dashboard': 'Dashboard',
       'analizar_hoja': 'Analyze Leaf',
       'historial': 'History',
       'usuarios': 'Users',
-      
+
       // Login
       'bienvenido': 'Welcome back',
       'crea_tu_cuenta': 'Create your account',
@@ -175,7 +175,7 @@ const resources = {
       'ya_tienes_cuenta': 'Already have an account? Sign in',
       'error_ocurrido': 'An error occurred',
       'error_login_google': 'Error logging in with Google',
-      
+
       // Landing
       'cultiva_futuro': 'Grow the future of your corn',
       'detecta_enfermedades_rapido': 'Detect diseases quickly and accurately with artificial intelligence. Protect your crops and maximize your production.',
