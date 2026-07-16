@@ -8,8 +8,14 @@
     "start": "next start -p 3001"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.15",
+    "@ai-sdk/google": "^4.0.17",
+    "@ai-sdk/groq": "^4.0.11",
+    "@ai-sdk/openai": "^4.0.15",
+    "@ai-sdk/react": "^4.0.31",
     "@react-oauth/google": "^0.13.5",
     "@tanstack/react-query": "^5.51.11",
+    "ai": "^7.0.28",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
