@@ -19,6 +19,7 @@ const resources = {
       'analizar_hoja': 'Analizar Hoja',
       'historial': 'Historial',
       'usuarios': 'Usuarios',
+      'estadisticas': 'Estadísticas',
 
       // Login
       'bienvenido': 'Bienvenido de nuevo',
@@ -73,6 +74,7 @@ const resources = {
       'chatbot_feedback_dashboard': 'Listo, te llevo al Dashboard ahora.',
       'chatbot_feedback_analyze': 'Perfecto, abriendo la página de análisis.',
       'chatbot_feedback_history': 'Entendido, te llevo al historial.',
+      'chatbot_feedback_statistics': 'Entendido, te llevo a la página de estadísticas de modelos.',
       'chatbot_feedback_upload': 'Por favor, sube una imagen de tu hoja de maíz en el panel de abajo.',
       'chatbot_greeting': 'Bienvenido, {{name}}. ¿En qué te puedo ayudar?',
 
@@ -140,7 +142,31 @@ const resources = {
       'disease_healthy': 'Sano',
       'disease_roña_común': 'Roya común',
       'disease_tizón_del_norte': 'Tizón del norte',
-      'disease_mancha_gris': 'Mancha gris de la hoja'
+      'disease_mancha_gris': 'Mancha gris de la hoja',
+
+      // Statistics Page
+      'stats_title': 'Estadísticas de Modelos',
+      'stats_subtitle': 'Análisis estadístico robusto para validar la estabilidad y generalización de los clasificadores de enfermedades de maíz.',
+      'stats_metrics_title': 'Rendimiento del Modelo',
+      'stats_model': 'Modelo',
+      'stats_acc': 'Precisión (Accuracy)',
+      'stats_loss': 'Pérdida (Loss)',
+      'stats_f1': 'F1-Score (Macro)',
+      'stats_ks_title': 'Prueba Kolmogorov-Smirnov (KS) - Estabilidad de Confianza',
+      'stats_ks_desc': 'Compara la distribución acumulada de probabilidades (confianza) para evaluar consistencia entre entrenamientos.',
+      'stats_mw_title': 'Prueba Mann-Whitney U - Significancia de Rendimiento',
+      'stats_mw_desc': 'Evalúa si la superioridad en aciertos de clasificación es estadísticamente significativa o producto del azar.',
+      'stats_levene_title': 'Prueba de Levene - Homogeneidad de Errores',
+      'stats_levene_desc': 'Compara la varianza de los errores absolutos para elegir modelos más simples y estables.',
+      'stats_comp': 'Comparación',
+      'stats_val': 'Estadístico',
+      'stats_p_val': 'p-valor',
+      'stats_sig': 'Diferencia Significativa',
+      'stats_yes': 'Sí',
+      'stats_no': 'No',
+      'stats_interpretation': 'Interpretación',
+      'stats_reload_btn': 'Reejecutar comparación',
+      'stats_reloading_banner': '⚠️ El proceso de comparación de modelos se está ejecutando en segundo plano. Esto puede tomar alrededor de 30 segundos. Los resultados se actualizarán automáticamente al finalizar.'
     }
   },
   en: {
@@ -156,6 +182,7 @@ const resources = {
       'analizar_hoja': 'Analyze Leaf',
       'historial': 'History',
       'usuarios': 'Users',
+      'estadisticas': 'Statistics',
 
       // Login
       'bienvenido': 'Welcome back',
@@ -210,6 +237,7 @@ const resources = {
       'chatbot_feedback_dashboard': 'Sure, taking you to the Dashboard now.',
       'chatbot_feedback_analyze': 'Perfect, opening the leaf analysis page.',
       'chatbot_feedback_history': 'Understood, taking you to your history.',
+      'chatbot_feedback_statistics': 'Understood, taking you to the model statistics page.',
       'chatbot_feedback_upload': 'Please upload a photo of your corn leaf below.',
       'chatbot_greeting': 'Welcome, {{name}}. How can I help you?',
 
@@ -278,6 +306,30 @@ const resources = {
       'disease_roña_común': 'Common Rust',
       'disease_tizón_del_norte': 'Northern Leaf Blight',
       'disease_mancha_gris': 'Gray Leaf Spot',
+
+      // Statistics Page
+      'stats_title': 'Model Statistics',
+      'stats_subtitle': 'Robust statistical analysis to validate the stability and generalization of corn disease classifiers.',
+      'stats_metrics_title': 'Model Performance Metrics',
+      'stats_model': 'Model',
+      'stats_acc': 'Accuracy',
+      'stats_loss': 'Loss',
+      'stats_f1': 'F1-Score (Macro)',
+      'stats_ks_title': 'Kolmogorov-Smirnov (KS) Test - Confidence Stability',
+      'stats_ks_desc': 'Compares the cumulative probability distribution (confidence) to evaluate consistency between training runs.',
+      'stats_mw_title': 'Mann-Whitney U Test - Performance Significance',
+      'stats_mw_desc': 'Evaluates if classification accuracy superiority is statistically significant or just random chance.',
+      'stats_levene_title': 'Levene Test - Error Homogeneity',
+      'stats_levene_desc': 'Compares absolute error variances to justify selecting simpler, more stable models.',
+      'stats_comp': 'Comparison',
+      'stats_val': 'Statistic',
+      'stats_p_val': 'p-value',
+      'stats_sig': 'Significant Difference',
+      'stats_yes': 'Yes',
+      'stats_no': 'No',
+      'stats_interpretation': 'Interpretation',
+      'stats_reload_btn': 'Re-run comparison',
+      'stats_reloading_banner': '⚠️ The model comparison process is running in the background. This can take about 30 seconds. The results will automatically update when finished.',
 
       // Recommendation strings - Roña común
       "Pústulas de color marrón-rojizo en ambas caras de las hojas, que coalescen en estadios avanzados.": "Reddish-brown pustules on both sides of the leaves, which coalesce in advanced stages.",
@@ -365,7 +417,12 @@ export function LanguageProvider({ children }) {
     }
   };
 
-  const t = (key, options) => i18n.t(key, options) || key;
+  const t = (key, options) => {
+    if (!mounted) {
+      return i18n.getFixedT('es')(key, options) || key;
+    }
+    return i18n.t(key, options) || key;
+  };
 
   // Safe wrapper for language value during SSR to prevent hydration mismatch
   const currentLanguage = mounted ? languageState : 'es';

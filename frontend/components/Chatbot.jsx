@@ -150,6 +150,9 @@ export default function Chatbot() {
       } else if (toolCall.name === 'goToHistory') {
         router.push('/history');
         outputText = 'Navigated to History page';
+      } else if (toolCall.name === 'goToStatistics') {
+        router.push('/statistics');
+        outputText = 'Navigated to Model Statistics page';
       } else if (toolCall.name === 'analyzeLeaf') {
         setShowUploadBox(true);
         outputText = 'Upload panel displayed to user';
@@ -255,6 +258,9 @@ export default function Chatbot() {
               } else if (toolName === 'goToHistory') {
                 router.push('/history');
                 outputText = 'Navigated to History page';
+              } else if (toolName === 'goToStatistics') {
+                router.push('/statistics');
+                outputText = 'Navigated to Model Statistics page';
               } else if (toolName === 'analyzeLeaf') {
                 setShowUploadBox(true);
                 outputText = 'Upload panel displayed to user';
@@ -412,6 +418,8 @@ export default function Chatbot() {
                 displayedText = t('chatbot_feedback_analyze');
               } else if (toolName === 'goToHistory') {
                 displayedText = t('chatbot_feedback_history');
+              } else if (toolName === 'goToStatistics') {
+                displayedText = t('chatbot_feedback_statistics');
               } else if (toolName === 'analyzeLeaf') {
                 displayedText = t('chatbot_feedback_upload');
               }

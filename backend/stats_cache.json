@@ -1,0 +1,103 @@
+{
+    "metrics": {
+        "MobileNetV2": {
+            "accuracy": 0.9378238320350647,
+            "loss": 0.19602970778942108,
+            "precision_macro": 0.9424593661997536,
+            "recall_macro": 0.9170814646887783,
+            "f1_macro": 0.926850166355174
+        },
+        "ResNet50": {
+            "accuracy": 0.22150258719921112,
+            "loss": 59.33681106567383,
+            "precision_macro": 0.24594365749402242,
+            "recall_macro": 0.19656150968817535,
+            "f1_macro": 0.199520675217964
+        },
+        "EfficientNetB0": {
+            "accuracy": 0.22927461564540863,
+            "loss": 160.63394165039062,
+            "precision_macro": 0.18748448385545158,
+            "recall_macro": 0.2751103558882596,
+            "f1_macro": 0.1699610158887783
+        }
+    },
+    "kolmogorov_smirnov": [
+        {
+            "model_1": "MobileNetV2",
+            "model_2": "ResNet50",
+            "statistic": 0.5155440414507773,
+            "p_value": 6.572928006250374e-94,
+            "significant": true,
+            "interpretation": "Las confianzas de predicción difieren significativamente en sus distribuciones de probabilidad."
+        },
+        {
+            "model_1": "MobileNetV2",
+            "model_2": "EfficientNetB0",
+            "statistic": 0.6049222797927462,
+            "p_value": 7.148579160397415e-132,
+            "significant": true,
+            "interpretation": "Las confianzas de predicción difieren significativamente en sus distribuciones de probabilidad."
+        },
+        {
+            "model_1": "ResNet50",
+            "model_2": "EfficientNetB0",
+            "statistic": 0.09326424870466321,
+            "p_value": 0.002412042665948556,
+            "significant": true,
+            "interpretation": "Las confianzas de predicción difieren significativamente en sus distribuciones de probabilidad."
+        }
+    ],
+    "mann_whitney": [
+        {
+            "model_1": "MobileNetV2",
+            "model_2": "ResNet50",
+            "statistic": 511450.0,
+            "p_value": 1.1108561424426187e-178,
+            "significant": true,
+            "interpretation": "Existe diferencia estadísticamente significativa en el rendimiento global de los modelos."
+        },
+        {
+            "model_1": "MobileNetV2",
+            "model_2": "EfficientNetB0",
+            "statistic": 509134.0,
+            "p_value": 2.549675921387646e-175,
+            "significant": true,
+            "interpretation": "Existe diferencia estadísticamente significativa en el rendimiento global de los modelos."
+        },
+        {
+            "model_1": "ResNet50",
+            "model_2": "EfficientNetB0",
+            "statistic": 295676.0,
+            "p_value": 0.7149279320999979,
+            "significant": false,
+            "interpretation": "El rendimiento de ambos modelos es estadísticamente equivalente."
+        }
+    ],
+    "levene": [
+        {
+            "model_1": "MobileNetV2",
+            "model_2": "ResNet50",
+            "statistic": 68.01583099365234,
+            "p_value": 3.4339004202286994e-16,
+            "significant": true,
+            "interpretation": "La dispersión de los errores de predicción difiere significativamente (comportamiento de error inestable)."
+        },
+        {
+            "model_1": "MobileNetV2",
+            "model_2": "EfficientNetB0",
+            "statistic": 72.382568359375,
+            "p_value": 4.13319818216209e-17,
+            "significant": true,
+            "interpretation": "La dispersión de los errores de predicción difiere significativamente (comportamiento de error inestable)."
+        },
+        {
+            "model_1": "ResNet50",
+            "model_2": "EfficientNetB0",
+            "statistic": 0.0896901786327362,
+            "p_value": 0.7646116614341736,
+            "significant": false,
+            "interpretation": "Las variaciones de error son equivalentes. Se sugiere preferir el modelo más liviano y simple."
+        }
+    ]
+}
