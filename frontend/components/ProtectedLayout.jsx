@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
+import Header from './Header';
 import { Menu, X } from 'lucide-react';
 
 export default function ProtectedLayout({ children }) {
@@ -31,6 +32,7 @@ export default function ProtectedLayout({ children }) {
 
   return (
     <div className="flex min-h-screen relative">
+      <Header />
       {/* Mobile hamburger button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -41,7 +43,7 @@ export default function ProtectedLayout({ children }) {
 
       {/* Sidebar */}
       <div className={`
-        fixed md:static inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <Sidebar onNavigate={() => setSidebarOpen(false)} />
@@ -50,12 +52,12 @@ export default function ProtectedLayout({ children }) {
       {/* Overlay for mobile when sidebar is open */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <div className="flex-1 bg-gray-50 overflow-y-auto md:ml-0 pt-16 md:pt-0">
+      <div className="flex-1 bg-gray-50 dark:bg-gray-900 overflow-y-auto md:ml-64 pt-16 md:pt-0">
         {children}
       </div>
     </div>

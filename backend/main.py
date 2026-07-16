@@ -288,12 +288,22 @@ async def google_auth(token: str, db: Session = Depends(get_db)):
         )
         
         email = idinfo['email']
+        name = idinfo.get('name', email.split('@')[0])
         
         # Check if user exists
         user = get_user(db, email)
         if not user:
-            # Raise error if email not registered
-            raise HTTPException(status_code=400, detail="correo no registrado")
+            # Create new user if not registered
+            user = User(
+                name=name,
+                email=email,
+                hashed_password="",
+                is_active=True,
+                is_admin=False
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
         
         # Create access token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -466,10 +476,10 @@ async def predict_disease(
 
 # Schema for paginated response
 from pydantic import BaseModel
-from typing import List, Any
+from typing import List
 
 class PaginatedResponse(BaseModel):
-    items: List[Any]
+    items: List[AnalysisResponse]
     total: int
     page: int
     per_page: int
@@ -492,11 +502,14 @@ async def get_user_analyses(
     # Get paginated analyses
     analyses = db.query(Analysis).filter(Analysis.user_id == current_user.id).order_by(Analysis.created_at.desc()).offset(offset).limit(per_page).all()
     
+    # Convert to AnalysisResponse
+    analysis_responses = [AnalysisResponse.model_validate(a) for a in analyses]
+    
     # Calculate total pages
     total_pages = (total + per_page - 1) // per_page if total > 0 else 1
     
     return PaginatedResponse(
-        items=analyses,
+        items=analysis_responses,
         total=total,
         page=page,
         per_page=per_page,
@@ -512,7 +525,7 @@ async def get_analysis(
     analysis = db.query(Analysis).filter(Analysis.id == analysis_id, Analysis.user_id == current_user.id).first()
     if not analysis:
         raise HTTPException(status_code=404, detail="Análisis no encontrado")
-    return analysis
+    return AnalysisResponse.model_validate(analysis)
 
 @app.get("/analyses/all", response_model=list[AnalysisResponse])
 async def get_all_analyses(
@@ -520,7 +533,7 @@ async def get_all_analyses(
     current_user: User = Depends(get_current_admin_user)
 ):
     analyses = db.query(Analysis).order_by(Analysis.created_at.desc()).all()
-    return analyses
+    return [AnalysisResponse.model_validate(a) for a in analyses]
 
 @app.get("/dashboard", response_model=DashboardStats)
 async def get_dashboard_stats(
@@ -538,11 +551,12 @@ async def get_dashboard_stats(
         disease_distribution[disease] = disease_distribution.get(disease, 0) + 1
     
     recent_analyses = db.query(Analysis).filter(Analysis.user_id == current_user.id).order_by(Analysis.created_at.desc()).limit(10).all()
+    recent_analyses_responses = [AnalysisResponse.model_validate(a) for a in recent_analyses]
     
     return DashboardStats(
         total_analyses=total_analyses,
         healthy_count=healthy_count,
         diseased_count=diseased_count,
-        recent_analyses=recent_analyses,
+        recent_analyses=recent_analyses_responses,
         disease_distribution=disease_distribution
     )

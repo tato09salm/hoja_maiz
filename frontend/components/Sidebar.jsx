@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Home, 
   Search, 
@@ -14,21 +15,22 @@ import { usePathname } from 'next/navigation';
 
 export default function Sidebar({ onNavigate }) {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const pathname = usePathname();
 
   const navItems = [
     { 
-      label: 'Dashboard', 
+      label: t('dashboard'), 
       href: '/dashboard', 
       icon: <Home size={20} /> 
     },
     { 
-      label: 'Analizar Hoja', 
+      label: t('analizar_hoja'), 
       href: '/analyze', 
       icon: <Search size={20} /> 
     },
     { 
-      label: 'Historial', 
+      label: t('historial'), 
       href: '/history', 
       icon: <History size={20} /> 
     },
@@ -36,7 +38,7 @@ export default function Sidebar({ onNavigate }) {
 
   if (user?.is_admin) {
     navItems.push({ 
-      label: 'Usuarios', 
+      label: t('usuarios'), 
       href: '/users', 
       icon: <Users size={20} /> 
     });
@@ -52,8 +54,8 @@ export default function Sidebar({ onNavigate }) {
         <div className="flex items-center gap-3">
           <Sprout size={32} className="text-green-300" />
           <div>
-            <h1 className="text-xl font-bold">Maíz Saludable</h1>
-            <p className="text-xs text-green-300">Detector de Enfermedades</p>
+            <h1 className="text-xl font-bold">{t('maiz_saludable')}</h1>
+            <p className="text-xs text-green-300">{t('detector_enfermedades')}</p>
           </div>
         </div>
       </div>
@@ -84,7 +86,7 @@ export default function Sidebar({ onNavigate }) {
           className="w-full flex items-center gap-3 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all"
         >
           <LogOut size={20} />
-          <span className="font-medium">Cerrar Sesión</span>
+          <span className="font-medium">{t('cerrar_sesion')}</span>
         </button>
       </div>
     </div>
