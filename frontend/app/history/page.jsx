@@ -3,6 +3,7 @@
 import ProtectedLayout from '@/components/ProtectedLayout';
 import api from '@/utils/api';
 import { useQuery } from '@tanstack/react-query';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Clock, 
   CheckCircle, 
@@ -87,24 +88,35 @@ const EXPERT_SYSTEM = {
 
 const CLASS_NAMES = ["Mancha gris", "Roña común", "Tizón del norte", "Sano"];
 
-const generatePDF = async (analysis) => {
+const generatePDF = async (analysis, language, t) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     let y = 20;
+
+    const isEn = language === 'en';
+
+    const getDiseaseTranslation = (name) => {
+        if (!name) return '';
+        const key = `disease_${name.toLowerCase().replace(/\s+/g, '_')}`;
+        const translated = t(key);
+        if (translated !== key) return translated;
+        if (name.toLowerCase() === 'sano' || name.toLowerCase() === 'healthy') return t('disease_healthy');
+        return name;
+    };
 
     doc.setFillColor(34, 139, 34);
     doc.roundedRect(10, 10, pageWidth - 20, 35, 5, 5, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('Reporte de Salud de la Hoja de Maíz', pageWidth / 2, 30, { align: 'center' });
+    doc.text(isEn ? 'Corn Leaf Health Report' : 'Reporte de Salud de la Hoja de Maíz', pageWidth / 2, 30, { align: 'center' });
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     const now = new Date();
-    doc.text(`Fecha: ${now.toLocaleDateString('es-ES')}    Hora: ${now.toLocaleTimeString('es-ES')}`, 15, 55);
+    doc.text(isEn ? `Date: ${now.toLocaleDateString('en-US')}    Time: ${now.toLocaleTimeString('en-US')}` : `Fecha: ${now.toLocaleDateString('es-ES')}    Hora: ${now.toLocaleTimeString('es-ES')}`, 15, 55);
     y = 65;
 
     doc.setFillColor(240, 250, 240);
@@ -122,22 +134,22 @@ const generatePDF = async (analysis) => {
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text('Resultado del Análisis:', 75, y);
+    doc.text(isEn ? 'Analysis Results:' : 'Resultado del Análisis:', 75, y);
     y += 8;
 
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
     
     if (analysis.is_healthy) {
-        doc.text('Estado: Saludable', 75, y);
+        doc.text(isEn ? 'Status: Healthy' : 'Estado: Saludable', 75, y);
         y += 7;
-        doc.text('Tu hoja de maíz está bien!', 75, y);
+        doc.text(isEn ? 'Your corn leaf is doing great!' : 'Tu hoja de maíz está bien!', 75, y);
     } else {
-        doc.text('Estado: Necesita Atención', 75, y);
+        doc.text(isEn ? 'Status: Needs Attention' : 'Estado: Necesita Atención', 75, y);
         y += 7;
-        doc.text(`Problema: ${analysis.diagnosis_class}`, 75, y);
+        doc.text(isEn ? `Problem: ${getDiseaseTranslation(analysis.diagnosis_class)}` : `Problema: ${getDiseaseTranslation(analysis.diagnosis_class)}`, 75, y);
         y += 7;
-        doc.text(`Seguridad del diagnóstico: ${Math.round(analysis.confidence * 100)}%`, 75, y);
+        doc.text(isEn ? `Diagnostic confidence: ${Math.round(analysis.confidence * 100)}%` : `Seguridad del diagnóstico: ${Math.round(analysis.confidence * 100)}%`, 75, y);
     }
     y += 18;
 
@@ -152,7 +164,7 @@ const generatePDF = async (analysis) => {
 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Probabilidades:', 15, y);
+    doc.text(isEn ? 'Probabilities:' : 'Probabilidades:', 15, y);
     y += 8;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
@@ -164,7 +176,7 @@ const generatePDF = async (analysis) => {
 
     Object.entries(classProbabilities).forEach(([className, prob]) => {
         const pct = Math.round(prob * 100);
-        doc.text(`- ${className}: ${pct}%`, 20, y);
+        doc.text(`- ${getDiseaseTranslation(className)}: ${pct}%`, 20, y);
         y += 6;
     });
     y += 12;
@@ -182,32 +194,32 @@ const generatePDF = async (analysis) => {
         y += 8;
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text('Mantenimiento Preventivo:', 15, y);
+        doc.text(isEn ? 'Preventive Maintenance:' : 'Mantenimiento Preventivo:', 15, y);
         y += 8;
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        const lines = doc.splitTextToSize(recommendations.message, 170);
+        const lines = doc.splitTextToSize(t(recommendations.message || EXPERT_SYSTEM["Sano"].message), 170);
         doc.text(lines, 20, y);
     } else {
         const sections = [
             {
-                title: 'Síntomas y Condiciones',
+                title: isEn ? 'Symptoms and Conditions' : 'Síntomas y Condiciones',
                 content: [
-                    `Cómo se ve: ${recommendations.symptoms}`,
-                    `Condiciones favorables: ${recommendations.favorable_conditions}`
+                    isEn ? `Appearance: ${t(recommendations.symptoms)}` : `Cómo se ve: ${t(recommendations.symptoms)}`,
+                    isEn ? `Favorable conditions: ${t(recommendations.favorable_conditions)}` : `Condiciones favorables: ${t(recommendations.favorable_conditions)}`
                 ]
             },
             {
-                title: 'Manejo Cultural (Sin Químicos)',
-                content: recommendations.cultural_controls
+                title: isEn ? 'Cultural Management (Chemical-free)' : 'Manejo Cultural (Sin Químicos)',
+                content: (recommendations.cultural_controls || []).map(item => t(item))
             },
             {
-                title: 'Opciones Químicas',
-                content: recommendations.chemical_controls
+                title: isEn ? 'Chemical Options' : 'Opciones Químicas',
+                content: (recommendations.chemical_controls || []).map(item => t(item))
             },
             {
-                title: 'Alternativas Biológicas',
-                content: recommendations.biological_controls
+                title: isEn ? 'Biological Alternatives' : 'Alternativas Biológicas',
+                content: (recommendations.biological_controls || []).map(item => t(item))
             }
         ];
 
@@ -243,14 +255,15 @@ const generatePDF = async (analysis) => {
     const footerY = pageHeight - 12;
     doc.setFontSize(8);
     doc.setTextColor(80, 80, 80);
-    doc.text('Consejo: Si tienes dudas, consulta a un experto en agricultura.', pageWidth / 2, footerY, { align: 'center' });
+    doc.text(isEn ? 'Advice: If you have doubts, consult an agricultural expert.' : 'Consejo: Si tienes dudas, consulta a un experto en agricultura.', pageWidth / 2, footerY, { align: 'center' });
 
-    doc.save(`analisis-${analysis.id}.pdf`);
+    doc.save(isEn ? `analysis-${analysis.id}.pdf` : `analisis-${analysis.id}.pdf`);
 };
 
 export default function HistoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const { language, t } = useLanguage();
   
   const { data: paginatedData, isLoading, error, refetch } = useQuery({
     queryKey: ['analyses', currentPage],
@@ -276,12 +289,21 @@ export default function HistoryPage() {
     analysis.diagnosis_class.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getDiseaseTranslation = (name) => {
+    if (!name) return '';
+    const key = `disease_${name.toLowerCase().replace(/\s+/g, '_')}`;
+    const translated = t(key);
+    if (translated !== key) return translated;
+    if (name.toLowerCase() === 'sano' || name.toLowerCase() === 'healthy') return t('disease_healthy');
+    return name;
+  };
+
   return (
     <ProtectedLayout>
       <div className="p-4 md:p-6">
         <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Historial de Análisis</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">Ver todos tus análisis de hojas de maíz</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('history_title')}</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{t('history_subtitle')}</p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6">
@@ -290,7 +312,7 @@ export default function HistoryPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Buscar por diagnóstico..."
+              placeholder={t('history_search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
@@ -315,31 +337,33 @@ export default function HistoryPage() {
                     />
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-800 dark:text-white text-base">Análisis #{analysis.id} - {analysis.diagnosis_class}</h3>
+                        <h3 className="font-semibold text-gray-800 dark:text-white text-base">
+                          {language === 'en' ? 'Analysis' : 'Análisis'} #{analysis.id} - {getDiseaseTranslation(analysis.diagnosis_class)}
+                        </h3>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           analysis.is_healthy 
                             ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
                             : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                         }`}>
-                          {analysis.is_healthy ? 'Sana' : 'Enferma'}
+                          {analysis.is_healthy ? t('dashboard_healthy') : t('dashboard_diseased')}
                         </span>
                       </div>
                       <p className="text-gray-600 dark:text-gray-300 text-sm">
-                        Confianza: {(analysis.confidence * 100).toFixed(1)}%
+                        {t('history_confidence', { percent: (analysis.confidence * 100).toFixed(1) })}
                       </p>
                       <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 text-xs mt-1">
                         <Clock size={14} />
-                        <span>{new Date(analysis.created_at).toLocaleString('es-ES')}</span>
+                        <span>{new Date(analysis.created_at).toLocaleString(language === 'en' ? 'en-US' : 'es-ES')}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => generatePDF(analysis)}
+                      onClick={() => generatePDF(analysis, language, t)}
                       className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md text-xs transition-all"
                     >
                       <FileText size={16} />
-                      Generar PDF
+                      {t('history_generate_pdf')}
                     </button>
                   </div>
                 </div>
@@ -349,7 +373,7 @@ export default function HistoryPage() {
             {/* Pagination */}
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Mostrando página {currentPage} de {totalPages}
+                {t('history_showing_page', { current: currentPage, total: totalPages })}
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -384,8 +408,8 @@ export default function HistoryPage() {
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">No hay análisis en el historial</p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">Comienza analizando tu primera hoja!</p>
+            <p className="text-gray-500 dark:text-gray-400 text-lg">{t('history_empty')}</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">{t('history_empty_subtitle')}</p>
           </div>
         )}
       </div>
