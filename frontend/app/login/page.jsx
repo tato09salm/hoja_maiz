@@ -40,8 +40,13 @@ export default function LoginPage() {
     setError(''); // Clear error when switching between login/register
   }, [isLogin]);
 
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
   if (user) {
-    router.push('/dashboard');
     return null;
   }
 

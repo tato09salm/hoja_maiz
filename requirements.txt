@@ -17,4 +17,9 @@ psycopg2-binary
 python-jose[cryptography]
 passlib[bcrypt]
 python-dotenv
-python-multipart
+authlib
+google-auth
+requests
+httpx
+itsdangerous
+email-validator
